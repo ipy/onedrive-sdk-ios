@@ -23,10 +23,26 @@
 
 @implementation ODAppConfiguration
 
-- (UIViewController *)parentAuthController
-{
-    if (!_parentAuthController){
-        _parentAuthController = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+- (UIViewController *)parentAuthController {
+    if (!_parentAuthController) {
+        if (@available(iOS 13.0, tvOS 13.0, *)) {
+            UIApplication *application = [UIApplication sharedApplication];
+            NSSet<UIScene *> *connectedScenes = application.connectedScenes;
+            for (UIScene *scene in connectedScenes) {
+                if ([scene isKindOfClass:[UIWindowScene class]]) {
+                    UIWindowScene *windowScene = (UIWindowScene *) scene;
+                    for (UIWindow *window in windowScene.windows) {
+                        if (window.isKeyWindow) {
+                            _parentAuthController = window.rootViewController;
+                        }
+                    }
+                }
+            }
+        } else {
+            UIApplication *application = [UIApplication sharedApplication];
+            _parentAuthController = application.keyWindow.rootViewController;
+        }
+        //        _parentAuthController = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
     }
     return _parentAuthController;
 }
